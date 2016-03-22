@@ -11,7 +11,7 @@ import os
 import time
 
 # print the main welcome banner
-print banner
+print (banner)
 
 # funny random banner
 import random
@@ -31,34 +31,41 @@ if profile_os() == "DEBIAN":
 
 print_status("Welcome to PTF - where everything just works...Because.." + bcolors.BOLD + funny + bcolors.ENDC)
 
-print """
+print ("""
 For a list of available commands type ? or help
-"""
+""")
 
 ignore_these = []
 if check_config("IGNORE_THESE_MODULES") is not None:
     ignore_these = check_config("IGNORE_THESE_MODULES").split(",")
+    if ignore_these[0] != "":
+	    print_info("Ignoring the following modules: "+(", ").join(ignore_these))
 
 def ignore_module(module):
     result = False
     for check in ignore_these:
-        if check == module:
-            print_warning("Ignoring module: " + module)
-            result = True
-    result
+        if "/*" in check:
+            if check[:-1] in module:
+                result = True
+        else:
+            if (os.getcwd() + "/"+check+".py") == module:
+                result = True
+    if result:
+        print_warning("Ignoring module: " + module)
+    return result
 
 # check the folder structure
 def show_module():
     modules_path = os.getcwd() + "/modules/"
-    print "\n"
-    print bcolors.BOLD + "The PenTesters Framework Modules" + bcolors.ENDC
+    print ("\n")
+    print (bcolors.BOLD + "The PenTesters Framework Modules" + bcolors.ENDC)
     print ("""=================================
 
-   """ + bcolors.BOLD + """Name                                                 Description """ + bcolors.ENDC + """
+   """) + (bcolors.BOLD) + ("""Name                                                 Description """) + (bcolors.ENDC) + ("""
    ----                                                 ---------------
     """)
 
-    print "   modules/install_update_all                           This will install or update all tools with modules within PTF"
+    print ("   modules/install_update_all                           This will install or update all tools with modules within PTF")
     for path, subdirs, files in os.walk(modules_path):
         for name in files:
             # join the structure
@@ -189,18 +196,25 @@ def use_module(module, all_trigger):
                 if os.path.isdir(install_location):
                     if install_type.lower() == "git":
                         print_status("Updating the tool, be patient while git pull is initiated.")
-                        proc = subprocess.Popen("cd %s;git pull" % (install_location), stderr=subprocess.PIPE, shell=True).wait()
+                        proc = subprocess.Popen("cd %s;git pull" % (install_location), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			# here we check to see if we need anything we need to run after things are updated
+			update_counter = 0
+			if not "Already up-to-date." in proc.communicate()[0]:
+				if not "metasploit" in filename:
+					after_commands(filename, install_location)
+					update_counter = 1	 
                         print_status("Finished Installing! Enjoy the tool installed under: " + (install_location))
 
                         # run after commands
                         if prompt != "update":
-                            after_commands(filename,install_location)
+			    if update_counter == 0:
+	                            after_commands(filename,install_location)
                             # special metasploit voodoo needed here
                             if os.path.isfile(install_location + "/msfconsole"):
                                 cwd = os.getcwd()
                                 os.chdir("/usr/local/bin")
                                 print_status("Needing to perform special Metasploit voodoo to get launcher to work.. Wait for another bundle install...")
-                                subprocess.Popen("cd %s;bundle install;rm -rf /usr/local/rvm/gems/ruby-2.*/bin/msf*" % (install_location), shell=True).wait()
+                                subprocess.Popen("cd %s;rm Gemfile.lock;bundle install;rm -rf /usr/local/rvm/gems/ruby-2.*/bin/msf*" % (install_location), shell=True).wait()
                                 print_status("Sacrifice to the ruby Gods complete. MSF should now work outside of the msf directory structure..")
                                 os.chdir(cwd)
 
@@ -215,13 +229,25 @@ def use_module(module, all_trigger):
                                   subprocess.Popen("apt-get --force-yes -y install libgmp-dev", shell=True).wait()
                                   print_status("Updating gem packages for Metasploit....")
                                   subprocess.Popen("cd %s;bundle update;bundle install" % (install_location), shell=True).wait()
-                                  #print_status("Killing ruby gem launchers as this breaks launchers...")
-                                  #subprocess.Popen("rm /usr/local/rvm/gems/ruby-2.*/bin/msf*", shell=True).wait()
                                   print_status("Finished updating Metasploit.... Enjoy!")
 
                     if install_type.lower() == "svn":
-                        print_status("Updating the tool, be patient while git pull is initiated.")
-                        proc = subprocess.Popen("cd %s;svn update" % (install_location), stderr=subprocess.PIPE, shell=True)
+                        print_status("Updating the tool, be patient while svn pull is initiated.")
+                        proc = subprocess.Popen("cd %s;svn update" % (install_location), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			# here we do some funky stuff to store old revisions
+			try:
+				if not os.path.isfile(install_location + "/.goatsvn_storage"):
+					filewrite = file(install_location + "/.goatsvn_storage", "w")
+					filewrite.write(proc.communicate()[0])
+					filewrite.close()
+	
+				if os.path.isfile(install_location + "/.goatsvn_storage"):
+					cmp = file(install_location + "/.goatsvn_storage", "r").read()
+					# if we are at a new revision
+					if cmp != proc.communicate()[0]:
+						# change prompt to something other than update
+						prompt = "goat"
+			except: pass
                         print_status("Finished Installing! Enjoy the tool installed under: " + (install_location))
                         # run after commands
                         if prompt != "update":
@@ -315,7 +341,7 @@ def use_module(module, all_trigger):
 
                 # if we are using wget
                 if install_type.lower() == "wget":
-                    print_status("WGET was the selected method for installation because it plays better that curl -l with Sourceforge.")
+                    print_status("WGET was the selected method for installation because it plays better than curl -l with Sourceforge.")
                     proc = subprocess.Popen("cd %s && wget -q %s" % (install_location, repository_location), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).wait()
                     print_status("Finished Installing! Enjoy the tool located under: " + install_location)
                     after_commands(filename,install_location)
@@ -425,7 +451,6 @@ while 1:
                                     # grab all the modules we need
                                     openbsd_modules = openbsd_modules + "," + module_parser(filename_short, "OPENBSD")
 
-
                 # install all of the packages at once
                 ostype = profile_os()
                 if ostype == "DEBIAN":
@@ -457,7 +482,8 @@ while 1:
                         # join the structure
                         filename = os.path.join(path, name)
                         # strip un-needed files
-                        if not "__init__.py" in filename:
+
+                        if not "__init__.py" in filename and not ignore_module(filename):
                             # shorten it up a little bit
                             filename_short = filename.replace(os.getcwd() + "/", "")
                             filename_short = filename_short.replace(".py", "")
@@ -471,7 +497,7 @@ while 1:
 
                 # clear the screen
                 os.system("clear")
-                print "\n"
+                print ("\n")
                 print (""" _   _            _      _   _            ____  _                  _""")
                 print ("""| | | | __ _  ___| | __ | |_| |__   ___  |  _ \| | __ _ _ __   ___| |_""")
                 print ("""| |_| |/ _` |/ __| |/ / | __| '_ \ / _ \ | |_) | |/ _` | '_ \ / _ \ __|""")

@@ -55,19 +55,19 @@ def definepath():
 
 # main status calls for print functions
 def print_status(message):
-    print bcolors.GREEN + bcolors.BOLD + "[*] " + bcolors.ENDC + str(message)
+    print (bcolors.GREEN) + (bcolors.BOLD) + ("[*] ") + (bcolors.ENDC) + (str(message))
 
 def print_info(message):
-    print bcolors.BLUE + bcolors.BOLD + "[-] " + bcolors.ENDC + str(message)
+    print (bcolors.BLUE) + (bcolors.BOLD) + ("[-] ") + (bcolors.ENDC) + (str(message))
 
 def print_info_spaces(message):
-    print bcolors.BLUE + bcolors.BOLD + "  [-] " + bcolors.ENDC + str(message)
+    print (bcolors.BLUE) + (bcolors.BOLD) + ("  [-] ") + (bcolors.ENDC) + (str(message))
 
 def print_warning(message):
-    print bcolors.YELLOW + bcolors.BOLD + "[!] " + bcolors.ENDC + str(message)
+    print (bcolors.YELLOW) + (bcolors.BOLD) + ("[!] ") + (bcolors.ENDC) + (str(message))
 
 def print_error(message):
-    print bcolors.RED + bcolors.BOLD + "[!] " + bcolors.ENDC + bcolors.RED + str(message) + bcolors.ENDC
+    print (bcolors.RED) + (bcolors.BOLD) + ("[!] ") + (bcolors.ENDC) + (bcolors.RED) + (str(message)) + (bcolors.ENDC)
 
 # count all of the modules
 def count_modules():
@@ -81,7 +81,7 @@ def count_modules():
     return counter
 
 # version information
-grab_version = "1.5.1"
+grab_version = "1.6.2"
 
 # banner
 banner = bcolors.RED + r"""
@@ -118,7 +118,7 @@ banner += bcolors.ENDC + """Framework\n\n"""
 
 banner += """        		""" + bcolors.backBlue + """Version: %s""" % (grab_version) + bcolors.ENDC + "\n"
 
-banner += bcolors.YELLOW + bcolors.BOLD + """		     Codename: """ + bcolors.BLUE + """Tools-R-Us""" + "\n"
+banner += bcolors.YELLOW + bcolors.BOLD + """		     Codename: """ + bcolors.BLUE + """Goat Runner""" + "\n"
 
 banner += """		       """ + bcolors.ENDC + bcolors.backRed + """Red Team Approved""" + bcolors.ENDC + "\n"
 
@@ -131,6 +131,14 @@ banner += """                  """ + bcolors.BOLD + """https://www.trustedsec.co
 banner += bcolors.BOLD + """\n              The easy way to get the new and shiny.
 """ + bcolors.ENDC + "\n"
 banner += "             Total module/tool count within PTF: " + bcolors.BOLD + str(count_modules()) + bcolors.ENDC + "\n"
+banner += """
+All tools are downloaded directly from the developers websites as-is.  PTF 
+doesn't perform any type of source code analysis or verification on the tools.
+You should run these after performing your own analysis of the tools and ensure 
+you trust the parties. PTF only adds tools that are well-known typically in the 
+security industry but that does not negate the risk. This is no different than 
+any other tool distribution platform, operating system, or anything you would 
+download from the Internet.\n"""
 
 # check the config file and return value
 def check_config(param):
@@ -189,10 +197,10 @@ def module_parser(filename, term):
 
 # help menu for PTF
 def show_help_menu():
-    print "Available from main prompt: " + bcolors.BOLD + "show modules" + bcolors.ENDC + "," + bcolors.BOLD + " show <module>" + bcolors.ENDC + "," + bcolors.BOLD + " search <name>" + bcolors.ENDC + "," + bcolors.BOLD + " use <module>" + bcolors.ENDC
-    print "Inside modules:" + bcolors.BOLD + " show options" + bcolors.ENDC + "," + bcolors.BOLD + " set <option>" + bcolors.ENDC + "," + bcolors.BOLD + "run" + bcolors.ENDC
-    print "Additional commands: " + bcolors.BOLD + "back" + bcolors.ENDC+ "," + bcolors.BOLD + " help" + bcolors.ENDC + "," + bcolors.BOLD + " ?" + bcolors.ENDC + "," + bcolors.BOLD + " exit" + bcolors.ENDC + "," + bcolors.BOLD + " quit" + bcolors.ENDC
-    print "Update or Install: "+ bcolors.BOLD + "update" + bcolors.ENDC + "," + bcolors.BOLD + " upgrade" + bcolors.ENDC + "," + bcolors.BOLD + " install" + bcolors.ENDC + "," + bcolors.BOLD + " run" + bcolors.ENDC
+    print ("Available from main prompt: " + bcolors.BOLD + "show modules" + bcolors.ENDC + "," + bcolors.BOLD + " show <module>" + bcolors.ENDC + "," + bcolors.BOLD + " search <name>" + bcolors.ENDC + "," + bcolors.BOLD + " use <module>" + bcolors.ENDC)
+    print ("Inside modules:" + bcolors.BOLD + " show options" + bcolors.ENDC + "," + bcolors.BOLD + " set <option>" + bcolors.ENDC + "," + bcolors.BOLD + "run" + bcolors.ENDC)
+    print ("Additional commands: " + bcolors.BOLD + "back" + bcolors.ENDC+ "," + bcolors.BOLD + " help" + bcolors.ENDC + "," + bcolors.BOLD + " ?" + bcolors.ENDC + "," + bcolors.BOLD + " exit" + bcolors.ENDC + "," + bcolors.BOLD + " quit" + bcolors.ENDC)
+    print ("Update or Install: "+ bcolors.BOLD + "update" + bcolors.ENDC + "," + bcolors.BOLD + " upgrade" + bcolors.ENDC + "," + bcolors.BOLD + " install" + bcolors.ENDC + "," + bcolors.BOLD + " run" + bcolors.ENDC)
 
 # exit message for PTF
 def exit_ptf():
@@ -316,7 +324,7 @@ def launcher(filename, install_location):
                 # if we found filetype
                 if point != "":
                     filewrite = file("/usr/local/bin/" + launchers, "w")
-                    filewrite.write("#!/bin/sh\ncd %s\nchmod +x %s\n%s $*" % (install_location,file_point,point))
+                    filewrite.write('#!/bin/sh\ncd %s\nchmod +x %s\n%s $*' % (install_location,file_point,point))
                     filewrite.close()
                     subprocess.Popen("chmod +x /usr/local/bin/%s" % (launchers), shell=True).wait()
                     print_status("Created automatic launcher, you can run the tool from anywhere by typing: " + launchers)
@@ -354,7 +362,7 @@ def search(term):
     if module_files != []:
         print_status("Search results below:")
         for modules in module_files:
-            print modules
+            print (modules)
 
     else: print_warning("Search found no results.")
 

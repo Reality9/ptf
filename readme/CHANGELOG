@@ -1,4 +1,41 @@
 ~~~~~~~~~~~~~~~~~
+version 1.6.2
+~~~~~~~~~~~~~~~~~
+
+* fixed an issue with hydra not installing ldap-utils
+* ssl certificate issue fixed with openvas (cert does not match)
+
+~~~~~~~~~~~~~~~~~
+version 1.6.1
+~~~~~~~~~~~~~~~~~
+
+* add a remove from Gemfile.lock in order to ensure proper git pulls
+
+~~~~~~~~~~~~~~~~~
+version 1.6
+~~~~~~~~~~~~~~~~~
+
+* move nmap-dev to nmap
+* fixed spraywmi depends for Ubuntu
+* moved ridenum from exploitation to intelligence-gathering
+* fixed an issue that would not import all of the arguments when using launchers
+* changed git to svn language to fix typo
+* added Python3 compatibility and support
+* added check for github, if new update occurs, run through after commands
+* added autocheck for svn if new updates occur, run through after commands
+* removed build-dep as a non-standard module in sslscan
+* added better handling for all updates - after commands will be now run anytime theres a module update either via SVN or GIT - this already happens for FILE. If something is already up-to-date it won't run after_commands
+* removed prompt for empire
+* added build gem bundles for smbexec but its still a mess - installer is broke, requires a million external depends - will need to work on this one later
+* just completely removed smbexec - hasn't been updated in over a year - no support and super broke
+
+~~~~~~~~~~~~~~~~~
+version 1.5.2
+~~~~~~~~~~~~~~~~~
+
+* adds ignore module or entire categories - pull request from vdbaan (awesome work!)
+
+~~~~~~~~~~~~~~~~~
 version 1.5.1
 ~~~~~~~~~~~~~~~~~
 
